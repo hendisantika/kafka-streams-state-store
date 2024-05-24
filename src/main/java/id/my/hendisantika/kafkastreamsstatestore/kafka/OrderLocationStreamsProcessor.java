@@ -2,11 +2,14 @@ package id.my.hendisantika.kafkastreamsstatestore.kafka;
 
 import id.my.hendisantika.kafkastreamsstatestore.dto.OrderLocation;
 import org.apache.kafka.streams.processor.api.Processor;
+import org.apache.kafka.streams.processor.api.ProcessorContext;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 /**
  * Created by IntelliJ IDEA.
@@ -27,4 +30,10 @@ public class OrderLocationStreamsProcessor implements Processor<String, OrderLoc
 
     @Value(value = "${kafka.streams.stateStoreName}")
     private String stateStoreName;
+
+    @Override
+    public void init(ProcessorContext context) {
+        stateStore = context.getStateStore(stateStoreName);
+        Objects.requireNonNull(stateStore, "State store can't be null");
+    }
 }
