@@ -9,7 +9,9 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.errors.LogAndContinueExceptionHandler;
 import org.apache.kafka.streams.state.KeyValueStore;
+import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +20,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerde;
+
+import java.util.Properties;
+
+import static org.apache.kafka.streams.StreamsConfig.APPLICATION_ID_CONFIG;
+import static org.apache.kafka.streams.StreamsConfig.BOOTSTRAP_SERVERS_CONFIG;
+import static org.apache.kafka.streams.StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG;
 
 /**
  * Created by IntelliJ IDEA.
@@ -95,5 +103,18 @@ public class KafkaStreamsConfiguration {
                 .addProcessor("Process", this::getOrderLocationStreamsProcessor, "Source")
                 .addStateStore(stateStoreBuilder, "Process");
         return topology;
+    }
+
+    /**
+     * This method is used for setting the configuration of Kafka Stream
+     *
+     * @return Properties
+     */
+    private Properties createConfigurationProperties() {
+        final Properties props = new Properties();
+        props.put(BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
+        props.put(APPLICATION_ID_CONFIG, applicationId);
+        props.put(DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, LogAndContinueExceptionHandler.class);
+        return props;
     }
 }
