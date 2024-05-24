@@ -31,3 +31,12 @@ The definition of the repository is here.
 ### Architecture
 
 ![Kafka Streams State Store Example](img/architecture.png "Kafka Streams State Store Example")
+
+Add Message
+
+![Add Message](img/add.png "Add Message")
+
+Get Order Location
+
+![Get Order Location](img/get.png "Get Order Location")
+
