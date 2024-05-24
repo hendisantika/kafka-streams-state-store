@@ -1,8 +1,21 @@
 package id.my.hendisantika.kafkastreamsstatestore.config;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.serialization.Deserializer;
+import org.apache.kafka.common.serialization.Serde;
+import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.Topology;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.support.serializer.JsonSerde;
 
 /**
  * Created by IntelliJ IDEA.
@@ -16,6 +29,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Slf4j
 @Configuration
+@RequiredArgsConstructor
 public class KafkaStreamsConfiguration {
 
     @Value(value = "${kafka.bootstrapAddress}")
@@ -29,4 +43,33 @@ public class KafkaStreamsConfiguration {
 
     @Value(value = "${kafka.streams.stateStoreName}")
     private String stateStoreName;
+
+    private final ObjectFactory<OrderLocationStreamsProcessor> orderLocationStreamsProcessorObjectFactory;
+
+    private final Deserializer<String> keyDeSerializer = new StringDeserializer();
+
+    private final Deserializer<OrderLocation> valueDeSerializer =
+            new JsonDeserializer<>(OrderLocation.class).ignoreTypeHeaders();
+
+    private final Serde<String> keySerializer = Serdes.String();
+
+    private final Serde<OrderLocation> valueSerializer = new JsonSerde<>(OrderLocation.class).ignoreTypeHeaders();
+
+//    public KafkaStreamsConfiguration(ObjectFactory<OrderLocationStreamsProcessor> orderLocationStreamsProcessorObjectFactory) {
+//        this.orderLocationStreamsProcessorObjectFactory = orderLocationStreamsProcessorObjectFactory;
+//    }
+//
+//    public OrderLocationStreamsProcessor getOrderLocationStreamsProcessor() {
+//        return orderLocationStreamsProcessorObjectFactory.getObject();
+//    }
+
+    @Bean
+    @Primary
+    public KafkaStreams kafkaStreams() {
+        log.info("Create Kafka Stream Bean with defined topology");
+        Topology topology = this.buildTopology(new StreamsBuilder());
+        final KafkaStreams kafkaStreams = new KafkaStreams(topology, createConfigurationProperties());
+        kafkaStreams.start();
+        return kafkaStreams;
+    }
 }
