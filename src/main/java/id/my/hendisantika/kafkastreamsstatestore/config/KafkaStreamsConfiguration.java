@@ -1,5 +1,7 @@
 package id.my.hendisantika.kafkastreamsstatestore.config;
 
+import id.my.hendisantika.kafkastreamsstatestore.dto.OrderLocation;
+import id.my.hendisantika.kafkastreamsstatestore.kafka.OrderLocationStreamsProcessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Deserializer;
@@ -69,9 +71,9 @@ public class KafkaStreamsConfiguration {
 //        this.orderLocationStreamsProcessorObjectFactory = orderLocationStreamsProcessorObjectFactory;
 //    }
 //
-//    public OrderLocationStreamsProcessor getOrderLocationStreamsProcessor() {
-//        return orderLocationStreamsProcessorObjectFactory.getObject();
-//    }
+public OrderLocationStreamsProcessor getOrderLocationStreamsProcessor() {
+    return orderLocationStreamsProcessorObjectFactory.getObject();
+}
 
     @Bean
     @Primary
