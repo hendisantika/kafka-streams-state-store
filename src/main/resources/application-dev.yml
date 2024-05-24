@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: kafka-streams-state-store
+  kafka:
+    bootstrap-servers:
+      - honest-hippo-7391-eu2-kafka.upstash.io:9092
+    properties:
+      security:
+        protocol: SASL_SSL
+      sasl:
+        mechanism: SCRAM-SHA-256
+        jaas:
+          config: org.apache.kafka.common.security.scram.ScramLoginModule required username="${UPSTASH_USERNAME}" password="${UPSTASH_PASSWORD}";
+kafka:
+  bootstrapAddress: http://localhost:9092
+  topics:
+    msgOrderLocation:
+      name: orderLocation
+  streams:
+    applicationId: orderLocationApplication
+    stateStoreName: orderLocationStore
