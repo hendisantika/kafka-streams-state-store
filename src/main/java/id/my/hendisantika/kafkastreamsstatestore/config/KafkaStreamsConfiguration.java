@@ -9,6 +9,8 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.state.KeyValueStore;
+import org.apache.kafka.streams.state.Stores;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -71,5 +73,27 @@ public class KafkaStreamsConfiguration {
         final KafkaStreams kafkaStreams = new KafkaStreams(topology, createConfigurationProperties());
         kafkaStreams.start();
         return kafkaStreams;
+    }
+
+    /**
+     * This method is used for defining topology for KafkaStreams
+     * Topology:
+     * 1. read the topic
+     * 2. send to stream processor for processing the message
+     * 3. persist message to key-value State Store
+     *
+     * @param streamsBuilder new Stream Builder
+     * @return Topology
+     */
+    private Topology buildTopology(StreamsBuilder streamsBuilder) {
+        Topology topology = streamsBuilder.build();
+
+        StoreBuilder<KeyValueStore<String, OrderLocation>> stateStoreBuilder =
+                Stores.keyValueStoreBuilder(Stores.persistentKeyValueStore(stateStoreName), keySerializer, valueSerializer);
+
+        topology.addSource("Source", keyDeSerializer, valueDeSerializer, msgOrderLocationTopic)
+                .addProcessor("Process", this::getOrderLocationStreamsProcessor, "Source")
+                .addStateStore(stateStoreBuilder, "Process");
+        return topology;
     }
 }
