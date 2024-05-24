@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: kafka-streams-state-store
+kafka:
+  bootstrapAddress: http://localhost:9092
+  topics:
+    msgOrderLocation:
+      name: orderLocation
+  streams:
+    applicationId: orderLocationApplication
+    stateStoreName: orderLocationStore
